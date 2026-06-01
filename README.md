@@ -3,6 +3,8 @@ Aplicacion Java Estadistica (Media, Mediana y Moda):
 
 <img width="1254" height="1254" alt="image" src="https://github.com/user-attachments/assets/b358a8b7-f2f2-4728-a242-ba98065b93a0" />  
 
+<img width="2550" height="1079" alt="image" src="https://github.com/user-attachments/assets/a60b9f90-8250-4852-b30c-d8ba9b8909b9" />    
+
 ```
 Java 21 + IntelliJ IDEA + Oracle Database 19c.
 Este proyecto desarrolla una aplicacion en Java 21 utilizando IntelliJ IDEA y Oracle Database 19c, capaz de:
