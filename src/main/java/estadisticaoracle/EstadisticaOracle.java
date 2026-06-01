@@ -30,29 +30,14 @@ public class EstadisticaOracle {
         consultarDatos();
     }
 
-    private static void consultarDatos() {
-    }
-
-    private static void guardarEnOracle(List<Integer> numeros, double media, double mediana, int moda) {
-        
-    }
-
-    private static int calcularModa(List<Integer> numeros) {
-        return 0;
-    }
-
-    private static double calcularMediana(List<Integer> numeros) {
-        return 0;
-    }
-
-    private static List<Integer> generarSerie(){
+    private static List<Integer> generarSerie() {
 
         Random random = new Random();
 
         List<Integer> numeros =
                 new ArrayList<>();
 
-        for (int i = 0; i < 20; i++){
+        for (int i = 0; i < 20; i++) {
 
             numeros.add(
                     random.nextInt(10) + 1
@@ -75,5 +60,184 @@ public class EstadisticaOracle {
                 numeros.size();
     }
 
-    
+    private static double calcularMediana(
+            List<Integer> numeros) {
+
+        Collections.sort(numeros);
+
+        int tamaño = numeros.size();
+
+        if (tamaño % 2 == 0) {
+
+            return (numeros.get(
+                    tamaño / 2 - 1)
+                    +
+                    numeros.get(
+                            tamaño / 2))
+                    / 2.0;
+        }
+
+        return numeros.get(
+                tamaño / 2);
+    }
+
+    private static int calcularModa(
+            List<Integer> numeros) {
+
+        Map<Integer, Integer> frecuencia =
+                new HashMap<>();
+
+        for (Integer numero : numeros) {
+
+            frecuencia.put(
+                    numero,
+                    frecuencia.getOrDefault(
+                            numero,
+                            0
+                    ) + 1
+            );
+        }
+
+        int moda = numeros.get(0);
+        int maxFrecuencia = 0;
+
+        for (Map.Entry<Integer, Integer> dato :
+                frecuencia.entrySet()) {
+
+            if (dato.getValue() >
+                    maxFrecuencia) {
+
+                maxFrecuencia =
+                        dato.getValue();
+
+                moda = dato.getKey();
+            }
+        }
+
+        return moda;
+    }
+
+    private static void guardarEnOracle(
+            List<Integer> numeros,
+            double media,
+            double mediana,
+            int moda) {
+
+        String sql = """
+                INSERT INTO ESTADISTICAS_R
+                (
+                    SERIE_NUMEROS,
+                    MEDIA,
+                    MEDIANA,
+                    MODA
+                )
+                VALUES
+                (
+                    ?,
+                    ?,
+                    ?,
+                    ?
+                )
+                """;
+        try (Connection con =
+                     ConexionOracle.conectar();
+             PreparedStatement ps =
+                     con.prepareStatement(sql)) {
+            ps.setString(
+                    1,
+                    numeros.toString()
+            );
+
+            ps.setDouble(
+                    2,
+                    media
+            );
+
+            ps.setDouble(
+                    3,
+                    mediana
+            );
+
+            ps.setInt(
+                    4,
+                    moda
+            );
+
+            ps.executeUpdate();
+
+            System.out.println(
+                    "\nRegistro guardado en oracle! "
+            );
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Error guardando: "
+                            + e.getMessage()
+            );
+        }
+    }
+
+    private static void consultarDatos() {
+
+        String sql =
+                "SELECT * FROM ESTADISTICAS_R";
+
+        try (Connection con =
+                     ConexionOracle.conectar();
+             Statement st =
+                     con.createStatement();
+             ResultSet rs =
+                     st.executeQuery(sql)) {
+
+            System.out.println(
+                    "\nREGISTROS ALMACENADOS"
+            );
+
+            while (rs.next()) {
+
+                System.out.println(
+                        "\nID: "
+                                + rs.getInt("ID")
+                );
+
+                System.out.println(
+                        "Fecha: "
+                                + rs.getDate(
+                                "FECHA_REGISTRO")
+                );
+
+                System.out.println(
+                        "Serie: "
+                                + rs.getString(
+                                "SERIE_NUMEROS")
+                );
+
+                System.out.println(
+                        "Media: "
+                                + rs.getDouble(
+                                "MEDIA")
+                );
+
+                System.out.println(
+                        "Mediana: "
+                                + rs.getDouble(
+                                "MEDIANA")
+                );
+
+                System.out.println(
+                        "Moda: "
+                                + rs.getDouble(
+                                "MODA")
+                );
+            }
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Error consultando: "
+                            + e.getMessage()
+            );
+        }   
+    }
 }
